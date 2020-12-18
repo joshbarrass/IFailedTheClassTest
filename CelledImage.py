@@ -57,7 +57,10 @@ class CelledImage:
     def save(self, fp, format=None, **params):
         self.im.save(fp=fp, format=format, **params)
 
-def open(fp: str, cells: Tuple[int, int]) -> CelledImage:
+def open(
+    fp: Union[str, Image.Image], cells: Tuple[int, int]
+) -> CelledImage:
+    """Open an in-memory copy of an image, closing the original"""
     return CelledImage(fp, cells)
 
 def new(mode, size, cells, color=0):
