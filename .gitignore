@@ -146,3 +146,5 @@ dmypy.json
 
 # image files
 *.jpg
+*.png
+*.fuck
