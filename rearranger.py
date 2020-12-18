@@ -5,6 +5,7 @@ import tempfile
 import zipfile
 
 import CelledImage
+from mutations import MUTATIONS
 
 PATTERN_FILE = "pattern.txt"
 IMAGE_NAME = "image"
@@ -105,12 +106,16 @@ class Rearranger:
     def rearrange(
         self,
         target,
+        allow_mutations=True,
+        allow_S_to_Z=False,
         allow_duplicates=False,
         space=None,
         unlimited_spaces=True
     ):
         """Rearrange the letters into the desired pattern.
 
+If allow_mutations is True, letters can be mutated to form missing letters.
+If allow_S_to_Z is True, the letter S can be mutated into a Z and vice versa.
 If allow_duplicates is True, letters can be reused. Implies unlimited_spaces.
 If space is set to a coordinate (x,y), this coordinate will be used for
 all spaces. Implies unlimited_spaces.
@@ -145,9 +150,15 @@ If unlimited_spaces is True, an unlimited number of spaces can be used.
                     ) > 0:
                         char = char.swapcase()
                     else:
-                        raise NotEnoughLettersError(
-                            "No {} remaining.".format(repr(char))
+                        char, mutator = self.mutate_letter(
+                            char,
+                            patterndict,
+                            allow_S_to_Z=allow_S_to_Z,
                         )
+                        if mutator is None:
+                            raise NotEnoughLettersError(
+                                "No {} remaining.".format(repr(char))
+                            )
 
                 if char == " " and space is not None:
                     index = space
@@ -163,13 +174,41 @@ If unlimited_spaces is True, an unlimited number of spaces can be used.
                 newim[x, y] = newcell
         return newim
 
-    def mutate_letter(self, char):
+    def mutate_letter(
+        self, target, patterndict, allow_S_to_Z=False, _first=True
+    ):
         """If a letter is unavailable, attempt to produce it through a mutation
 
-If a mutation can be done, will return the character and a mutation function.
+If a mutation can be done, will return the character and a mutation
+function. If no mutation is available, will return (target, None).
 
-Mutation functions will take an image in and return a new image."""
-        pass
+Mutation functions will take an image in and return a new image.
+
+        """
+        if target not in MUTATIONS:
+            if target.swapcase() in MUTATIONS:
+                target = target.swapcase()
+            else:
+                return (target, None)
+
+        for required in MUTATIONS[target].keys():
+            if (required == "S" or required == "s") and (
+                target == "Z" or target == "z"
+            ) and not allow_S_to_Z:
+                continue
+            if required in patterndict and len(
+                patterndict[required]
+            ) > 0:
+                return (required, MUTATIONS[target][required])
+
+        if _first:
+            return self.mutate_letter(
+                target.swapcase(),
+                patterndict,
+                allow_S_to_Z=allow_S_to_Z,
+                _first=False
+            )
+        return (target, None)
 
 def pad_lines(string):
     lines = string.splitlines()
