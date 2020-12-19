@@ -10,12 +10,12 @@ original text will be prioritised, but if none can be found an attempt
 will be made to mutate another letter (e.g. rotating a `p` to make a
 `d`).
 
-Currently **this can only be used via an interactive Python session!**
-I hope to make a proper user interface when I get time.  Run
-`rearranger.py` in your Python REPL and create a `Rearranger` class as
-such:
+Currently **\*\*this can only be used via an interactive Python
+session!\*\*** I hope to make a proper user interface when I get time.
+Run `rearranger.py` in your Python REPL and create a `Rearranger`
+class as such:
 
-```
+```python
 r = Rearranger("/path/to/image.png", "pattern\n  of  \n  letters")
 ```
 
@@ -28,7 +28,7 @@ Once an image and pattern has been loaded, the pattern can be saved
 with the image. The file format used should be either `.zip` or
 `.fuck`. Use:
 
-```
+```python
 r.save_pattern("/path/to/image.zip")
 # alternatively
 r.save_pattern("/path/to/image.fuck")
@@ -39,14 +39,14 @@ This new file can then be loaded without needing to specify a pattern.
 In order to use the image to create new text, use the
 `Rearranger.rearrange` function:
 
-```
+```python
 newim = r.rearrange("new text")
 ```
 
 The image returned is a `PIL.Image`, which can be saved with
 `Image.save`.
 
-```
+```python
 newim.save("/path/to/newimage.png")
 # or it can be previewed directly
 newim.show()
